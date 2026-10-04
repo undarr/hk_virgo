@@ -1,0 +1,6 @@
+const buttons = [
+  { id: 1, x: 50,  y: 700, w: 120, h: 120, label: 'Btn 1' },
+  { id: 2, x: 560, y: 700, w: 120, h: 120, label: 'Btn 2' },
+  { id: 3, x: 300, y: 480, w: 120, h: 120, label: 'Btn 3' },
+  { id: 4, x: 300, y: 950, w: 120, h: 120, label: 'Btn 4' },
+];

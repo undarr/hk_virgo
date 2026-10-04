@@ -1,0 +1,179 @@
+/* src/index.css */
+
+/* Lock viewport and disable touch bounce/scrolling */
+:root, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: fixed;
+  touch-action: none;
+  background-color: #000;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+/* Outer wrapper: centers the 9:16 frame */
+.screen-container {
+  width: 100vw;
+  height: 100dvh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #000;
+}
+
+/* Inner frame: strictly 9:16 aspect ratio scaled to fit screen */
+.stage {
+  position: relative;
+  overflow: hidden; /* Keeps layer transitions tidy */
+  width: min(100vw, calc(100dvh * (9 / 16)));
+  height: min(100dvh, calc(100vw * (16 / 9)));
+}
+
+/* Layer containing the wallpaper and buttons */
+.scene-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Button style */
+.action-button {
+  position: absolute;
+  padding: 0;
+  margin: 0;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  background: rgba(0, 0, 0, 0.25);
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  outline: none;
+  user-select: none;
+}
+
+.action-button:active {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.map-frame {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+/* Real-time Map & GPS Marker */
+.map-frame {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+}
+
+/* Pulsing blue GPS dot */
+.live-gps-marker {
+  background: #007aff;
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(0, 122, 255, 0.6);
+  position: relative;
+}
+
+.live-gps-marker::after {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0, 122, 255, 0.35);
+  animation: pulse-ring 2s infinite ease-out;
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.5);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+.action-div {
+  box-sizing: border-box;
+  user-select: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* --- Textbox Styles --- */
+.action-textbox {
+  box-sizing: border-box;
+  padding: 0 16px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  font-size: 16px; /* 16px prevents iOS Safari auto-zoom on focus */
+  color: #111;
+  outline: none;
+  font-family: inherit;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.action-textbox:focus {
+  border-color: #007aff;
+  background: #ffffff;
+}
+
+/* --- Draggable & Slot Styles --- */
+.draggables-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none; /* Let clicks pass through empty spaces */
+}
+
+/* Faint dashed outline showing where slots are */
+.slot-target {
+  position: absolute;
+  box-sizing: border-box;
+  border: 2px dashed rgba(255, 255, 255, 0.35);
+  border-radius: 16px;
+  pointer-events: none;
+}
+
+.draggable-item {
+  position: absolute;
+  box-sizing: border-box;
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  cursor: grab;
+  touch-action: none; /* Prevents scroll when dragging on mobile */
+  pointer-events: auto;
+  user-select: none;
+  border-radius: 16px;
+}
+
+.draggable-item.is-dragging {
+  cursor: grabbing;
+  transform: scale(1.06);
+  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.45));
+}
