@@ -177,3 +177,155 @@
   transform: scale(1.06);
   filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.45));
 }
+
+/* --- Text Element --- */
+.action-text {
+  display: flex;
+  align-items: center;
+  user-select: none;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
+/* --- Radio Buttons --- */
+.radio-group {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Radio buttons reuse the standard action-button style */
+.radio-button {
+  pointer-events: auto;
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Selected Radio Button: Shaded in blue */
+.radio-button.is-selected {
+  background-color: rgba(0, 122, 255, 0.55) !important;
+  border-color: #007aff !important;
+  box-shadow: 0 0 14px rgba(0, 122, 255, 0.45);
+}
+
+/* --- Generators & Slots --- */
+.generators-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.slot-target {
+  position: absolute;
+  box-sizing: border-box;
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  border-radius: 16px;
+  pointer-events: none;
+}
+
+/* Clean spawner without badge */
+.generator-spawner {
+  position: absolute;
+  box-sizing: border-box;
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  cursor: grab;
+  touch-action: none;
+  pointer-events: auto;
+  border-radius: 16px;
+}
+
+.generator-item {
+  position: absolute;
+  box-sizing: border-box;
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  cursor: grab;
+  touch-action: none;
+  pointer-events: auto;
+  border-radius: 16px;
+  user-select: none;
+}
+
+.generator-item.is-dragging {
+  cursor: grabbing;
+  z-index: 999;
+  transform: scale(1.08);
+  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.5));
+}
+
+/* --- Task Badges in Polygon Centroids --- */
+.task-yellow-badge {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.task-badge-wrapper {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Yellow Badge */
+.yellow-badge-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffeb3b;
+  border: 2px solid #f57f17;
+  color: #212121;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  transform: translateY(-50%);
+  user-select: none;
+  animation: bounce-marker 1.2s infinite alternate ease-in-out;
+  white-space: nowrap;
+}
+
+.yellow-badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f57f17;
+}
+
+/* Green Badge */
+.green-badge-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #c8e6c9;
+  border: 2px solid #2e7d32;
+  color: #1b5e20;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  transform: translateY(-50%);
+  user-select: none;
+  animation: bounce-marker 1.2s infinite alternate ease-in-out;
+  white-space: nowrap;
+}
+
+.green-badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #2e7d32;
+}
+
+@keyframes bounce-marker {
+  0% {
+    transform: translateY(-50%) scale(0.96);
+  }
+  100% {
+    transform: translateY(-65%) scale(1.04);
+  }
+}
