@@ -665,7 +665,7 @@ function App() {
         1: {
           type: 'button',
           x: 175, y: 1251, w: 556, h: 151, z: 2,
-          label: 'Continue',
+          label: '',
           func: () => goToScene(2, 'crossfade', 1000),
         },
       },
