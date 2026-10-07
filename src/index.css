@@ -52,7 +52,7 @@
   padding: 0;
   margin: 0;
   border: 2px solid rgba(255, 255, 255, 0.8);
-  background: rgba(0, 0, 0, 0.25);
+  background: none; /*rgba(0, 0, 0, 0.25);*/
   color: white;
   font-size: 14px;
   cursor: pointer;
@@ -65,7 +65,7 @@
 }
 
 .action-button:active {
-  background: rgba(255, 255, 255, 0.4);
+  background: none; /* rgba(255, 255, 255, 0.4); */
 }
 
 .map-frame {
@@ -328,4 +328,15 @@
   100% {
     transform: translateY(-65%) scale(1.04);
   }
+}
+
+.overlay-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  pointer-events: auto;
 }
