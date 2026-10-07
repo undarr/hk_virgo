@@ -29,10 +29,10 @@ const ORANGE_BOUNDARY = [
 // 8 Tasks Definition
 const INITIAL_TASKS = {
   1: {
+    id:1,
     label: "樂群街公園",
-    complete: false,
     shape: "polygon",
-    scene: 6,
+    scene: 10,
     vertices: [
       [114.15995478630066, 22.324063078803032],
       [114.15995478630066, 22.323202107318046],
@@ -44,10 +44,10 @@ const INITIAL_TASKS = {
     ]
   },
   2: {
+    id:2,
     label: "詩歌舞街",
-    complete: false,
     shape: "polygon",
-    scene: 6,
+    scene: 20,
     vertices: [
       [114.16307151317598, 22.326263866493047],
       [114.16308224201204, 22.325608844247526],
@@ -57,10 +57,10 @@ const INITIAL_TASKS = {
     ]
   },
   3: {
+    id:3,
     label: "嘉善街",
-    complete: false,
     shape: "polygon",
-    scene: 6,
+    scene: 30,
     vertices: [
       [114.16086405515672, 22.32008321224729],
       [114.16086405515672, 22.319899599704634],
@@ -70,10 +70,10 @@ const INITIAL_TASKS = {
     ]
   },
   4: {
+    id:4,
     label: "好世界洋樓",
-    complete: false,
     shape: "polygon",
-    scene: 6,
+    scene: 40,
     vertices: [
       [114.16477471590044, 22.325162236407923],
       [114.16488468647005, 22.324608936935153],
@@ -83,10 +83,10 @@ const INITIAL_TASKS = {
     ]
   },
   5: {
+    id:5,
     label: "大同新邨",
-    complete: false,
     shape: "polygon",
-    scene: 6,
+    scene: 50,
     vertices: [
       [114.16086405515672, 22.321656315211907],
       [114.16134148836137, 22.32166624009544],
@@ -96,10 +96,10 @@ const INITIAL_TASKS = {
     ]
   },
   6: {
+    id:6,
     label: "港灣豪庭",
-    complete: false,
     shape: "polygon",
-    scene: 6,
+    scene: 60,
     vertices: [
       [114.16028201580049, 22.32413999530546],
       [114.16114300489427, 22.324154882365534],
@@ -109,10 +109,10 @@ const INITIAL_TASKS = {
     ]
   },
   7: {
+    id:7,
     label: "福澤街轉角",
-    complete: false,
     shape: "polygon",
-    scene: 6,
+    scene: 70,
     vertices: [
       [114.16178405284883, 22.320403292994047],
       [114.16178137063982, 22.32029659949336],
@@ -122,10 +122,10 @@ const INITIAL_TASKS = {
     ]
   },
   8: {
+    id:8,
     label: "形品星寓",
-    complete: false,
     shape: "polygon",
-    scene: 6,
+    scene: 80,
     vertices: [
       [114.16486591100696, 22.321492554531446],
       [114.16469961404803, 22.32129901893404],
@@ -169,62 +169,23 @@ function getCentroid(coords) {
 /**
  * OpenStreetMap Component with Tasks and Dynamic Shading
  */
-function OSMMap({ coords }) {
+function OSMMap({ coords, taskcomplete }) {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markerRef = useRef(null);
   const orangePolyRef = useRef(null);
-  const taskLayersRef = useRef({}); // Stores Leaflet polygon & marker per task
+  const taskGroupRef = useRef(null); // Dedicated Leaflet LayerGroup for tasks
 
-  // Map Initialization
-  useEffect(() => {
-    if (!window.L || !mapContainerRef.current) return;
-
-    const map = window.L.map(mapContainerRef.current, {
-      zoomControl: false,
-      attributionControl: false,
-    }).setView([coords.lat, coords.lon], 16);
-
-    window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-    }).addTo(map);
-
-    // Main Orange Boundary
-    const isInsideOrange = isPointInPolygon([coords.lat, coords.lon], ORANGE_BOUNDARY);
-    const orangePoly = window.L.polygon(ORANGE_BOUNDARY, {
-      color: '#ff6600',
-      weight: 3,
-      fillColor: '#ffa500',
-      fillOpacity: isInsideOrange ? 0 : 0.35,
-    }).addTo(map);
-    orangePolyRef.current = orangePoly;
-
-    // Live Pulsing User GPS Marker
-    const gpsIcon = window.L.divIcon({
-      className: 'live-gps-marker',
-      iconSize: [22, 22],
-      iconAnchor: [11, 11],
-    });
-    const marker = window.L.marker([coords.lat, coords.lon], { icon: gpsIcon }).addTo(map);
-    markerRef.current = marker;
-    mapInstanceRef.current = map;
-
-    return () => map.remove();
-  }, []);
-
-  // Update on GPS movement
-  useEffect(() => {
-    if (!mapInstanceRef.current || !coords) return;
-    const map = mapInstanceRef.current;
-    const userPt = [coords.lat, coords.lon];
+  const syncMapState = (map, currentCoords) => {
+    if (!map || !currentCoords || !taskGroupRef.current) return;
+    const userPt = [currentCoords.lat, currentCoords.lon];
 
     // 1. Move User GPS Dot
     if (markerRef.current) {
       markerRef.current.setLatLng(userPt);
-      map.panTo(userPt, { animate: true, duration: 1 });
     }
 
-    // 2. Check if inside orange boundary
+    // 2. Check if user is inside orange boundary
     const isInsideOrange = isPointInPolygon(userPt, ORANGE_BOUNDARY);
     if (orangePolyRef.current) {
       orangePolyRef.current.setStyle({
@@ -232,68 +193,51 @@ function OSMMap({ coords }) {
       });
     }
 
-    // 3. Render or Hide the 8 Tasks
+    // 3. Clear existing task layers before re-drawing
+    taskGroupRef.current.clearLayers();
+
+    // If outside orange area, do not draw tasks
     if (!isInsideOrange) {
-      // Remove all tasks from map when outside orange boundary
-      Object.values(taskLayersRef.current).forEach(({ polygon, marker }) => {
-        if (polygon) map.removeLayer(polygon);
-        if (marker) map.removeLayer(marker);
-      });
-      taskLayersRef.current = {};
       return;
     }
 
-    // When inside orange boundary: evaluate each task
+    // 4. Render all 8 tasks inside taskGroup
     Object.entries(INITIAL_TASKS).forEach(([taskId, task]) => {
       const taskCoords = task.vertices.map(([lon, lat]) => [lat, lon]);
       const userInTask = isPointInPolygon(userPt, taskCoords);
-      const isComplete = task.complete;
+      const isComplete = taskcomplete[taskId];
+      console.log(taskId);
 
-      // Color rules
       let strokeColor, fillColor, badgeClass, dotClass;
 
       if (isComplete) {
-        // Light green
         strokeColor = '#2e7d32';
         fillColor = '#81c784';
         badgeClass = 'green-badge-inner';
         dotClass = 'green-badge-dot';
       } else if (userInTask) {
-        // Incomplete + User Inside = Yellow
         strokeColor = '#f57f17';
         fillColor = '#ffeb3b';
         badgeClass = 'yellow-badge-inner';
         dotClass = 'yellow-badge-dot';
       } else {
-        // Incomplete + User Outside = Wine Red
-        strokeColor = '#5c0617';
-        fillColor = '#800020';
+        strokeColor = '#800020';
+        fillColor = '#c2185b';
         badgeClass = null;
       }
 
-      let layerObj = taskLayersRef.current[taskId];
+      // Draw task polygon
+      const poly = window.L.polygon(taskCoords, {
+        color: strokeColor,
+        weight: 3,
+        fillColor: fillColor,
+        fillOpacity: 0.6,
+      });
 
-      // Create polygon layer if not exists
-      if (!layerObj) {
-        const poly = window.L.polygon(taskCoords, {
-          color: strokeColor,
-          weight: 2.5,
-          fillColor: fillColor,
-          fillOpacity: 0.45,
-        }).addTo(map);
+      taskGroupRef.current.addLayer(poly);
+      poly.bringToFront(); // Ensure it renders above the orange boundary
 
-        taskLayersRef.current[taskId] = { polygon: poly, marker: null };
-        layerObj = taskLayersRef.current[taskId];
-      } else {
-        // Update existing polygon style
-        layerObj.polygon.setStyle({
-          color: strokeColor,
-          fillColor: fillColor,
-          fillOpacity: 0.45,
-        });
-      }
-
-      // Marker badge in centroid (Only shown when user is within the task polygon)
+      // Centroid badge if user is inside this specific task
       if (userInTask) {
         const centroid = getCentroid(taskCoords);
         const badgeHtml = `
@@ -310,23 +254,73 @@ function OSMMap({ coords }) {
           iconSize: [0, 0],
         });
 
-        if (layerObj.marker) {
-          layerObj.marker.setLatLng(centroid);
-          layerObj.marker.setIcon(badgeIcon);
-        } else {
-          layerObj.marker = window.L.marker(centroid, { icon: badgeIcon }).addTo(map);
-        }
-      } else {
-        // Remove badge marker if user walked outside the task polygon
-        if (layerObj.marker) {
-          map.removeLayer(layerObj.marker);
-          layerObj.marker = null;
-        }
+        const badgeMarker = window.L.marker(centroid, { icon: badgeIcon });
+        taskGroupRef.current.addLayer(badgeMarker);
       }
     });
+  };
+
+  // Map Initialization
+  useEffect(() => {
+    if (!window.L || !mapContainerRef.current) return;
+
+    const userPt = [coords.lat, coords.lon];
+    const isInsideOrange = isPointInPolygon(userPt, ORANGE_BOUNDARY);
+
+    // Zoom level 15 ensures the ~1km orange zone fits on mobile screen
+    const map = window.L.map(mapContainerRef.current, {
+      zoomControl: false,
+      attributionControl: false,
+    }).setView(userPt, 15);
+
+    window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+    }).addTo(map);
+
+    // 1. Base Orange Boundary
+    const orangePoly = window.L.polygon(ORANGE_BOUNDARY, {
+      color: '#ff6600',
+      weight: 3,
+      fillColor: '#ffa500',
+      fillOpacity: isInsideOrange ? 0 : 0.35,
+    }).addTo(map);
+    orangePolyRef.current = orangePoly;
+
+    // 2. Task LayerGroup (Rendered above the base map)
+    const taskGroup = window.L.layerGroup().addTo(map);
+    taskGroupRef.current = taskGroup;
+
+    // 3. User GPS Marker
+    const gpsIcon = window.L.divIcon({
+      className: 'live-gps-marker',
+      iconSize: [22, 22],
+      iconAnchor: [11, 11],
+    });
+    const marker = window.L.marker(userPt, { icon: gpsIcon }).addTo(map);
+    markerRef.current = marker;
+    mapInstanceRef.current = map;
+
+    // Force Leaflet to recalculate container bounds after flex layout stabilizes
+    setTimeout(() => {
+      map.invalidateSize();
+      syncMapState(map, coords);
+    }, 150);
+
+    return () => {
+      map.remove();
+      taskGroupRef.current = null;
+      mapInstanceRef.current = null;
+    };
+  }, []);
+
+  // Update on GPS movement
+  useEffect(() => {
+    if (!mapInstanceRef.current || !coords) return;
+    //mapInstanceRef.current.panTo([coords.lat, coords.lon], { animate: true, duration: 1 });
+    syncMapState(mapInstanceRef.current, coords);
   }, [coords]);
 
-  return <div ref={mapContainerRef} className="map-frame" style={{"zIndex" : 0}}/>;
+  return <div ref={mapContainerRef} className="map-frame" style={{ zIndex: 0 }} />;
 }
 
 /**
@@ -548,11 +542,13 @@ function App() {
   const stageRef = useRef(null);
   const watchIdRef = useRef(null);
 
+  const taskcompleteRef = useRef({1:false, 2:false, 3:false, 4:false, 5:false, 6:false, 7:false, 8:false});
+
   const [blackFade, setBlackFade] = useState({ opacity: 1, duration: 0 });
   const [crossfade, setCrossfade] = useState(null);
 
   const enablelocation = async () => {
-    setUserCoords({ lat: 22.3193, lon: 114.1694 });
+    setUserCoords({ lat: 22.32040329, lon: 114.161784 });
     goToScene(5, 'fade', 800);
     /*
     try {
@@ -589,23 +585,23 @@ function App() {
   };
 
   const getUserLocationStatus = () => {
-    if (!userCoords) return { text: "Go to Orange", activeTask: null };
+    if (!userCoords) return { text: "💡前往大角咀", activeTask: null };
 
     const userPt = [userCoords.lat, userCoords.lon];
     const inOrange = isPointInPolygon(userPt, ORANGE_BOUNDARY);
 
     if (!inOrange) {
-      return { text: "Go to Orange", activeTask: null };
+      return { text: "💡前往大角咀", activeTask: null };
     }
 
     for (const task of Object.values(INITIAL_TASKS)) {
       const taskCoords = task.vertices.map(([lon, lat]) => [lat, lon]);
       if (isPointInPolygon(userPt, taskCoords)) {
-        return { text: `You are at ${task.label}`, activeTask: task };
+        return { text: `📍已到達${task.label}`, activeTask: task };
       }
     }
 
-    return { text: "Go to Tasks", activeTask: null };
+    return { text: "💡前往任務區域", activeTask: null };
   };
 
   const { text: statusText, activeTask } = getUserLocationStatus();
@@ -666,42 +662,9 @@ function App() {
     1: {
       wallpaper: '/1_1.png',
       divs: {
-        // 1. Text element
         1: {
-          type: 'text',
-          x: 100, y: 300, w: 540, h: 80, z: 2,
-          text: 'Choose an Option',
-          font: 'sans-serif',
-          fontSize: '26px',
-          color: 'ffffff',
-        },
-        // 2. Radio group element
-        2: {
-          type: 'radio',
-          defaultValue: '1',
-          buttons: {
-            1: { x: 160, y: 450, w: 420, h: 90, z: 2, label: 'Mode A' },
-            2: { x: 160, y: 560, w: 420, h: 90, z: 2, label: 'Mode B' },
-          },
-        },
-        // 3. Generators element
-        3: {
-          type: 'generators',
-          w: 150, h: 150, z: 3,
-          slots: {
-            1: { x: 100, y: 1100 },
-            2: { x: 295, y: 1100 },
-            3: { x: 490, y: 1100 },
-          },
-          gen: {
-            1: { image: '/3_1.png', x: 180, y: 800 },
-            2: { image: '/3.png',   x: 410, y: 800 },
-          },
-        },
-        // 4. Action button to go to Scene 2
-        4: {
           type: 'button',
-          x: 139, y: 1350, w: 466, h: 120, z: 2,
+          x: 175, y: 1251, w: 556, h: 151, z: 2,
           label: 'Continue',
           func: () => goToScene(2, 'crossfade', 1000),
         },
@@ -712,22 +675,14 @@ function App() {
       divs: {
         1: {
           type: 'button',
-          x: 160, y: 1325, w: 420, h: 130, z: 2,
+          x: 197, y: 1327, w: 502, h: 128, z: 2,
           func: () => goToScene(3, 'fade', 1000),
         },
-        2: { 
-          type: 'div',
-          x: 160, y: 1025, w: 420, h: 130, z: 1, 
-          image: '/3_1.png',
-          func: () => goToScene(3, 'fade', 1000) 
-        },
-        3: {
-          type: 'textbox',
-          x: 160, y: 500, w: 420, h: 90, z: 3,
-          placeholder: 'Enter text here...',
-          value: textboxValue,
-          onChange: (e) => setTextboxValue(e.target.value),
-        },
+        2: {
+          type: 'button',
+          x: 21, y: 11, w: 119, h: 119, z: 2,
+          func: () => goToScene(1, 'fade', 1000),
+        }
       },
     },
     3: {
@@ -735,7 +690,7 @@ function App() {
       divs: {
         1: {
           type: 'button',
-          x: 160, y: 1325, w: 420, h: 130, z: 1,
+          x: 194, y: 1254, w: 515, h: 161, z: 1,
           func: () => enablelocation(),
         },
       },
@@ -749,69 +704,157 @@ function App() {
       divs: {
         1: { 
           type: 'div',
-          x: 160, y: 125, w: 420, h: 130, z: 1, 
+          x: 49, y: 48, w: 807, h: 176, z: 1, 
           image: '/3_1.png',
           func: () => goToScene(3, 'fade', 1000) 
         },
         2: { 
           type: 'button',
-          x: 600, y: 1000, w: 50, h: 50, z: 1,
+          x: 600, y: 500, w: 50, h: 50, z: 1,
           func: () => setUserCoords(prev => ({ ...prev, lat: prev.lat + 0.00005 }))
         },
         3: { 
           type: 'button',
-          x: 550, y: 1050, w: 50, h: 50, z: 1,
+          x: 550, y: 550, w: 50, h: 50, z: 1,
           func: () => setUserCoords(prev => ({ ...prev, lon: prev.lon - 0.00005 }))
         },
         4: { 
           type: 'button',
-          x: 600, y: 1100, w: 50, h: 50, z: 1,
+          x: 600, y: 600, w: 50, h: 50, z: 1,
           func: () => setUserCoords(prev => ({ ...prev, lat: prev.lat - 0.00005 }))
         },
         5: { 
           type: 'button',
-          x: 650, y: 1050, w: 50, h: 50, z: 1,
+          x: 650, y: 550, w: 50, h: 50, z: 1,
           func: () => setUserCoords(prev => ({ ...prev, lon: prev.lon + 0.00005 }))
         },
         6: { 
           type: 'button',
-          x: 600, y: 1250, w: 100, h: 100, z: 1,
+          x: 600, y: 750, w: 100, h: 100, z: 1,
           func: () => setUserCoords(prev => ({ ...prev, lat: prev.lat + 0.0005 }))
         },
         7: { 
           type: 'button',
-          x: 500, y: 1350, w: 100, h: 100, z: 1,
+          x: 500, y: 850, w: 100, h: 100, z: 1,
           func: () => setUserCoords(prev => ({ ...prev, lon: prev.lon - 0.0005 }))
         },
         8: { 
           type: 'button',
-          x: 600, y: 1450, w: 100, h: 100, z: 1,
+          x: 600, y: 950, w: 100, h: 100, z: 1,
           func: () => setUserCoords(prev => ({ ...prev, lat: prev.lat - 0.0005 }))
         },
         9: { 
           type: 'button',
-          x: 700, y: 1350, w: 100, h: 100, z: 1,
+          x: 700, y: 850, w: 100, h: 100, z: 1,
           func: () => setUserCoords(prev => ({ ...prev, lon: prev.lon + 0.0005 }))
         },
-        11: { 
+        10: { 
           type: 'text',
           text: statusText,
-          color: "FF0000",
-          fontSize: 72,
-          x: 100, y: 150, w: 400, h: 100, z: 1,
+          color: "000000",
+          fontSize: 20,
+          x: 93, y: 89, w: 465, h: 98, z: 1,
         },
         // Button 10 only appears when the user is inside a task
-        ...(activeTask && {
-          10: { 
+        ...(activeTask && !taskcompleteRef.current[activeTask.id] && {
+          11: { 
             type: 'button',
             label: `Enter ${activeTask.label}`,
-            x: 100, y: 1150, w: 400, h: 100, z: 1,
+            x: 175, y: 1251, w: 556, h: 151, z: 1,
             func: () => goToScene(activeTask.scene, 'fade', 800),
           },
         }),
         
       },
     },
+    10: {
+      wallpaper: '/10_1.png',
+      divs: {
+        1: { 
+            type: 'button',
+            x: 187, y: 1176, w: 519, h: 151, z: 1,
+            func: () => goToScene(11, 'fade', 800),
+          },
+      },
+    },
+    20: {
+      wallpaper: '/20_1.png',
+      divs: {
+        1: { 
+            type: 'button',
+            x: 187, y: 1176, w: 519, h: 151, z: 1,
+            func: () => goToScene(21, 'fade', 800),
+          },
+      },
+    },
+    30: {
+      wallpaper: '/30_1.png',
+      divs: {
+        1: { 
+            type: 'button',
+            x: 187, y: 1176, w: 519, h: 151, z: 1,
+            func: () => goToScene(31, 'fade', 800),
+          },
+      },
+    },
+    40: {
+      wallpaper: '/40_1.png',
+      divs: {
+        1: { 
+            type: 'button',
+            x: 187, y: 1176, w: 519, h: 151, z: 1,
+            func: () => goToScene(41, 'fade', 800),
+          },
+      },
+    },
+    50: {
+      wallpaper: '/50_1.png',
+      divs: {
+        1: { 
+            type: 'button',
+            x: 187, y: 1176, w: 519, h: 151, z: 1,
+            func: () => goToScene(51, 'fade', 800),
+          },
+      },
+    },
+    60: {
+      wallpaper: '/60_1.png',
+      divs: {
+        1: { 
+            type: 'button',
+            x: 187, y: 1176, w: 519, h: 151, z: 1,
+            func: () => goToScene(60, 'fade', 800),
+          },
+        2: { 
+            type: 'button',
+            x: 552, y: 1374, w: 301, h: 157, z: 1,
+            func: () => {
+              taskcompleteRef.current[6]=true;
+              goToScene(5, 'fade', 800);
+            }
+          },
+      },
+    },
+    70: {
+      wallpaper: '/70_1.png',
+      divs: {
+        1: { 
+            type: 'button',
+            x: 187, y: 1176, w: 519, h: 151, z: 1,
+            func: () => goToScene(71, 'fade', 800),
+          },
+      },
+    },
+    80: {
+      wallpaper: '/80_1.png',
+      divs: {
+        1: { 
+            type: 'button',
+            x: 187, y: 1176, w: 519, h: 151, z: 1,
+            func: () => goToScene(81, 'fade', 800),
+          },
+      },
+    }
   };
 
   // Prevent mobile gesture scrolling, allow interactions on all interactive widgets
@@ -848,7 +891,7 @@ function App() {
           zIndex,
         }}
       >
-        {scene.isMap && userCoords && <OSMMap coords={userCoords} />}
+        {scene.isMap && userCoords && <OSMMap coords={userCoords} taskcomplete={taskcompleteRef.current} />}
 
         {Object.entries(elements).map(([key, item]) => {
           // 1. Radio Group
