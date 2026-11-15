@@ -5,6 +5,16 @@ import './index.css';
 const BASE_WIDTH = 900;
 const BASE_HEIGHT = 1600;
 
+const NOTE_OFFSETS = {
+  C: 0, 'C#': 1, Db: 1,
+  D: 2, 'D#': 3, Eb: 3,
+  E: 4,
+  F: 5, 'F#': 6, Gb: 6,
+  G: 7, 'G#': 8, Ab: 8,
+  A: 9, 'A#': 10, Bb: 10,
+  B: 11,
+};
+
 // Orange boundary coordinates: [lon, lat] -> converted to [lat, lon]
 const ORANGE_BOUNDARY = [
   [114.163618683815, 22.326343262919895],
@@ -220,8 +230,8 @@ function OSMMap({ coords, taskcomplete }) {
         badgeClass = 'yellow-badge-inner';
         dotClass = 'yellow-badge-dot';
       } else {
-        strokeColor = '#800020';
-        fillColor = '#c2185b';
+        strokeColor = '#ff6600'; 
+        fillColor = '#ffa500'; 
         badgeClass = null;
       }
 
@@ -247,6 +257,12 @@ function OSMMap({ coords, taskcomplete }) {
             </div>
           </div>
         `;
+        /*
+        <div class="${badgeClass}">
+              <span class="${dotClass}"></span>
+              <span>${task.label}</span>
+            </div>
+        */
         const badgeIcon = window.L.divIcon({
           className: 'task-yellow-badge',
           html: badgeHtml,
@@ -279,9 +295,9 @@ function OSMMap({ coords, taskcomplete }) {
 
     // 1. Base Orange Boundary
     const orangePoly = window.L.polygon(ORANGE_BOUNDARY, {
-      color: '#ff6600',
+      color: '#800020',
       weight: 3,
-      fillColor: '#ffa500',
+      fillColor: '#c2185b',//#ffa500
       fillOpacity: isInsideOrange ? 0 : 0.35,
     }).addTo(map);
     orangePolyRef.current = orangePoly;
@@ -593,6 +609,15 @@ function GeneratorsGroup({ config, stageRef }) {
 }
 
 function App() {
+  const audioCtxRef = useRef(null);
+  useEffect(() => {
+    return () => {
+      if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
+        audioCtxRef.current.close();
+      }
+    };
+  }, []);
+
   const [currentSceneId, setCurrentSceneId] = useState(1);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [userCoords, setUserCoords] = useState(null);
@@ -724,21 +749,14 @@ function App() {
   };
 
   const playpiano = (note) => {
-    let audioCtx = null;
-
-    const NOTE_OFFSETS = {
-      C: 0, 'C#': 1, Db: 1,
-      D: 2, 'D#': 3, Eb: 3,
-      E: 4,
-      F: 5, 'F#': 6, Gb: 6,
-      G: 7, 'G#': 8, Ab: 8,
-      A: 9, 'A#': 10, Bb: 10,
-      B: 11,
-    };
-
-    if (!audioCtx) {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    // 3. Lazy initialize AudioContext on the first user interaction
+    if (!audioCtxRef.current) {
+      audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
     }
+
+    const audioCtx = audioCtxRef.current;
+
+    // Resume context if browser put it in 'suspended' state
     if (audioCtx.state === 'suspended') {
       audioCtx.resume();
     }
@@ -751,18 +769,18 @@ function App() {
     }
 
     const pitch = match[1].toUpperCase();
-    const octave = match[2] ? parseInt(match[2], 10) : 4; // Defaults to octave 4
+    const octave = match[2] ? parseInt(match[2], 10) : 4;
 
     const semitoneOffset = NOTE_OFFSETS[pitch];
     if (semitoneOffset === undefined) return;
 
-    // Calculate frequency: f = 440 * 2^((midi - 69) / 12), where A4 = 440Hz (MIDI 69)
+    // Calculate frequency: f = 440 * 2^((midi - 69) / 12)
     const midiNumber = (octave + 1) * 12 + semitoneOffset;
     const frequency = 440 * Math.pow(2, (midiNumber - 69) / 12);
 
     const now = audioCtx.currentTime;
 
-    // 1. Harmonics for a richer piano timbre (fundamental + overtone)
+    // 1. Harmonics
     const osc1 = audioCtx.createOscillator();
     const osc2 = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
@@ -773,7 +791,7 @@ function App() {
     osc2.type = 'sine';
     osc2.frequency.setValueAtTime(frequency * 2, now); // 2nd harmonic overtone
 
-    // 2. Piano envelope: punchy attack followed by exponential acoustic decay
+    // 2. Piano envelope
     gain.gain.setValueAtTime(0.0001, now);
     gain.gain.exponentialRampToValueAtTime(0.7, now + 0.015);
     gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.8);
@@ -786,6 +804,13 @@ function App() {
     osc2.start(now);
     osc1.stop(now + 1.8);
     osc2.stop(now + 1.8);
+
+    // 3. Garbage collection: disconnect nodes to prevent memory leak when spammed
+    osc1.onended = () => {
+      osc1.disconnect();
+      osc2.disconnect();
+      gain.disconnect();
+    };
   };
 
   // Demo Scenes Configuration
@@ -805,13 +830,28 @@ function App() {
       divs: {
         1: {
           type: 'button',
-          x: 197, y: 1327, w: 502, h: 128, z: 2,
+          x: 213, y: 1374, w: 474, h: 138,
+          func: () => goToScene(6, 'fade', 1000),
+        },
+        2: {
+          type: 'button',
+          x: 43, y: 14, w: 122, h: 119,
+          func: () => goToScene(1, 'fade', 1000),
+        }
+      },
+    },
+    6: {
+      wallpaper: '/1_5.png',
+      divs: {
+        1: {
+          type: 'button',
+          x: 213, y: 1374, w: 474, h: 138,
           func: () => goToScene(3, 'fade', 1000),
         },
         2: {
           type: 'button',
-          x: 21, y: 11, w: 119, h: 119, z: 2,
-          func: () => goToScene(1, 'fade', 1000),
+          x: 43, y: 14, w: 122, h: 119,
+          func: () => goToScene(2, 'fade', 1000),
         }
       },
     },
@@ -845,8 +885,7 @@ function App() {
         1: { 
           type: 'div',
           x: 49, y: 48, w: 807, h: 176, z: 1, 
-          image: '/3_1.png',
-          func: () => goToScene(3, 'fade', 1000) 
+          image: '/3_1.png'
         },
         2: { 
           type: 'button',
@@ -927,6 +966,72 @@ function App() {
     11: {
       wallpaper: '/10_2.png',
       divs: {
+        1: {
+          type: 'generators',
+          w: 80, h: 80, z: 3,
+          slots: {
+            1: { x: 70, y: 515 },
+            2: { x: 170, y: 515 },
+            3: { x: 655, y: 515 },
+            4: { x: 760, y: 515 },
+            5: { x: 65, y: 905 },
+            6: { x: 165, y: 905 },
+            7: { x: 650, y: 905 },
+            8: { x: 755, y: 905 },
+            9: { x: 305, y: 770 },
+            10: { x: 410, y: 770 },
+            11: { x: 515, y: 770 },
+          },
+          gen: {
+            1: { image: '/1w1.png', x: 40, y: 1150 },
+            2: { image: '/1w2.png', x: 125, y: 1150 },
+            3: { image: '/1w3.png', x: 200, y: 1150 },
+            4: { image: '/1w4.png', x: 285, y: 1150 },
+            5: { image: '/1w5.png', x: 370, y: 1150 },
+            6: { image: '/1w6.png', x: 455, y: 1150 },
+            7: { image: '/1w7.png', x: 540, y: 1150 },
+            8: { image: '/1w8.png', x: 625, y: 1150 },
+            9: { image: '/1w9.png', x: 710, y: 1150 },
+            10: { image: '/1w10.png', x: 795, y: 1150 },
+            11: { image: '/1w11.png', x: 40, y: 1250 },
+            12: { image: '/1w12.png', x: 125, y: 1250 },
+            13: { image: '/1w13.png', x: 200, y: 1250 },
+            14: { image: '/1w14.png', x: 285, y: 1250 },
+            15: { image: '/1w15.png', x: 370, y: 1250 },
+            16: { image: '/1w16.png', x: 455, y: 1250 },
+            17: { image: '/1w17.png', x: 540, y: 1250 },
+            18: { image: '/1w18.png', x: 625, y: 1250 },
+            19: { image: '/1w19.png', x: 710, y: 1250 },
+            20: { image: '/1w20.png', x: 795, y: 1250 },
+          },
+        },
+        2: { 
+          type: 'button',
+          x: 278, y: 1383, w: 534, h: 160, z: 1,
+          func: () => {
+            if (true) {
+              taskcompleteRef.current[1]=true;
+              goToScene(9, 'crossfade', 800);
+            }
+            else {
+              openOverlay(1);
+            }
+          },
+        },
+        3: { 
+          type: 'button',
+          x: 775, y: 61, w: 94, h: 88, z: 1,
+          func: () => {
+            openOverlay(4);
+          },
+        },
+        4: { 
+          type: 'button',
+          x: 77, y: 1389, w: 154, h: 139, z: 1,
+          func: () => {
+            openOverlay(5);
+          },
+        },
       },
     },
     20: {
@@ -936,16 +1041,86 @@ function App() {
             type: 'button',
             label: '詩歌舞街page',
             x: 187, y: 1176, w: 519, h: 151, z: 1,
-            func: () => goToScene(20, 'fade', 800),
+            func: () => goToScene(21, 'fade', 800),
           },
+      },
+    },
+    21: {
+      wallpaper: '/20_2.png',
+      divs: {
+        1: {
+          type: 'textbox',
+          x: 65, y: 1220, w: 765, h: 116, z: 3,
+          placeholder: '請在此輸入答案…',
+          value: textboxValue,
+          onChange: (e) => setTextboxValue(e.target.value),
+        },
         2: { 
-            type: 'button',
-            x: 552, y: 1374, w: 301, h: 157, z: 1,
-            func: () => {
+          type: 'button',
+          x: 278, y: 1383, w: 534, h: 160, z: 1,
+          func: () => {
+            if (textboxValue=="76374760") {
+              setTextboxValue("");
+              goToScene(22, 'crossfade', 800);
+            }
+            else {
+              openOverlay(1);
+            }
+          },
+        },
+        3: { 
+          type: 'button',
+          x: 775, y: 61, w: 94, h: 88, z: 1,
+          func: () => {
+            openOverlay(4);
+          },
+        },
+        4: { 
+          type: 'button',
+          x: 77, y: 1389, w: 154, h: 139, z: 1,
+          func: () => {
+            openOverlay(5);
+          },
+        },
+      },
+    },
+    22: {
+      wallpaper: '/20_3.png',
+      divs: {
+        1: {
+          type: 'textbox',
+          x: 65, y: 1175, w: 765, h: 116, z: 3,
+          placeholder: '請在此輸入答案…',
+          value: textboxValue,
+          onChange: (e) => setTextboxValue(e.target.value),
+        },
+        2: { 
+          type: 'button',
+          x: 278, y: 1383, w: 534, h: 160, z: 1,
+          func: () => {
+            if (textboxValue=="彩虹") {
               taskcompleteRef.current[2]=true;
               goToScene(9, 'crossfade', 800);
             }
+            else {
+              openOverlay(1);
+            }
           },
+        },
+        3: { 
+          type: 'button',
+          x: 775, y: 61, w: 94, h: 88, z: 1,
+          func: () => {
+            openOverlay(4);
+          },
+        },
+        4: { 
+          type: 'button',
+          x: 77, y: 1389, w: 154, h: 139, z: 1,
+          func: () => {
+            openOverlay(5);
+          },
+        },
       },
     },
     30: {
@@ -970,7 +1145,7 @@ function App() {
         },
         2: { 
           type: 'button',
-          x: 178, y: 1349, w: 540, h: 128, z: 1,
+          x: 278, y: 1383, w: 534, h: 160, z: 1,
           func: () => {
             if (textboxValue=="無間道") {
               taskcompleteRef.current[3]=true;
@@ -981,6 +1156,20 @@ function App() {
             }
           },
         },
+        3: { 
+          type: 'button',
+          x: 775, y: 61, w: 94, h: 88, z: 1,
+          func: () => {
+            openOverlay(4);
+          },
+        },
+        4: { 
+          type: 'button',
+          x: 77, y: 1389, w: 154, h: 139, z: 1,
+          func: () => {
+            openOverlay(5);
+          },
+        },
       },
     },
     40: {
@@ -988,7 +1177,7 @@ function App() {
       divs: {
         1: { 
             type: 'button',
-            x: 187, y: 1176, w: 519, h: 151, z: 1,
+            x: 203, y: 1223, w: 490, h: 135, z: 1,
             func: () => goToScene(41, 'fade', 800),
           },
       },
@@ -998,22 +1187,36 @@ function App() {
       divs: {
         1: {
           type: 'textbox',
-          x: 62, y: 1179, w: 779, h: 116, z: 3,
+          x: 62, y: 1220, w: 770, h: 116, z: 3,
           placeholder: '請在此輸入答案…',
           value: textboxValue,
           onChange: (e) => setTextboxValue(e.target.value),
         },
         2: { 
           type: 'button',
-          x: 178, y: 1349, w: 540, h: 128, z: 1,
+          x: 278, y: 1383, w: 534, h: 160, z: 1,
           func: () => {
-            if (textboxValue=="好世界戲院") {
+            if (textboxValue=="好世界洋樓") {
               taskcompleteRef.current[4]=true;
               goToScene(9, 'crossfade', 800);
             }
             else {
               openOverlay(1);
             }
+          },
+        },
+        3: { 
+          type: 'button',
+          x: 775, y: 61, w: 94, h: 88, z: 1,
+          func: () => {
+            openOverlay(4);
+          },
+        },
+        4: { 
+          type: 'button',
+          x: 77, y: 1389, w: 154, h: 139, z: 1,
+          func: () => {
+            openOverlay(5);
           },
         },
       },
@@ -1028,7 +1231,7 @@ function App() {
           },
         2: { 
             type: 'button',
-            x: 552, y: 1374, w: 301, h: 157, z: 1,
+            x: 278, y: 1383, w: 534, h: 160, z: 1,
             func: () => {
               taskcompleteRef.current[5]=true;
               goToScene(9, 'crossfade', 800);
@@ -1046,7 +1249,7 @@ function App() {
           },
         2: { 
             type: 'button',
-            x: 552, y: 1374, w: 301, h: 157, z: 1,
+            x: 278, y: 1383, w: 534, h: 160, z: 1,
             func: () => {
               taskcompleteRef.current[6]=true;
               goToScene(9, 'crossfade', 800);
@@ -1094,7 +1297,7 @@ function App() {
         },
         3: {
           type: "button",
-          x: 178, y: 1342, w: 543, h: 148,
+          x: 278, y: 1383, w: 534, h: 160,
           func: () => {
             if (["2:00","02:00","14:00"].includes(textboxValue) && JSON.stringify(selectedModes.sort())==JSON.stringify(['1','10','3','5','6'])) {
               taskcompleteRef.current[7]=true;
@@ -1104,7 +1307,21 @@ function App() {
               openOverlay(1);
             }
           },
-        }
+        },
+        4: { 
+          type: 'button',
+          x: 775, y: 61, w: 94, h: 88, z: 1,
+          func: () => {
+            openOverlay(4);
+          },
+        },
+        5: { 
+          type: 'button',
+          x: 77, y: 1389, w: 154, h: 139, z: 1,
+          func: () => {
+            openOverlay(5);
+          },
+        },
       },
     },
     80: {
@@ -1123,67 +1340,67 @@ function App() {
       divs: {
         1: { 
             type: 'button',
-            x: 118, y: 695, w: 91, h: 226, z: 1,
+            x: 118, y: 625, w: 91, h: 282, z: 1,
             func: () => {playpiano("C");}
           },
         2: { 
             type: 'button',
-            x: 209, y: 695, w: 91, h: 226, z: 1,
+            x: 209, y: 625, w: 91, h: 282, z: 1,
             func: () => {playpiano("D");}
           },
         3: { 
             type: 'button',
-            x: 300, y: 695, w: 91, h: 226, z: 1,
+            x: 300, y: 625, w: 91, h: 282, z: 1,
             func: () => {playpiano("E");}
           },
         4: { 
             type: 'button',
-            x: 394, y: 695, w: 94, h: 226, z: 1,
+            x: 394, y: 625, w: 94, h: 282, z: 1,
             func: () => {playpiano("F");}
           },
         5: { 
             type: 'button',
-            x: 487, y: 695, w: 100, h: 226, z: 1,
+            x: 487, y: 625, w: 100, h: 282, z: 1,
             func: () => {playpiano("G");}
           },
         6: { 
             type: 'button',
-            x: 586, y: 695, w: 94, h: 226, z: 1,
+            x: 586, y: 625, w: 94, h: 282, z: 1,
             func: () => {playpiano("A");}
           },
         7: { 
             type: 'button',
-            x: 684, y: 695, w: 94, h: 226, z: 1,
+            x: 684, y: 625, w: 94, h: 282, z: 1,
             func: () => {playpiano("B");}
           },
         8: { 
             type: 'button',
-            x: 184, y: 692, w: 54, h: 142, z: 2,
+            x: 184, y: 625, w: 54, h: 170, z: 2,
             func: () => {playpiano("C#");}
           },
         9: { 
             type: 'button',
-            x: 278, y: 692, w: 51, h: 138, z: 2,
+            x: 278, y: 625, w: 51, h: 170, z: 2,
             func: () => {playpiano("D#");}
           },
         10: { 
             type: 'button',
-            x: 464, y: 695, w: 44, h: 132, z: 2,
+            x: 462, y: 625, w: 50, h: 170, z: 2,
             func: () => {playpiano("F#");}
           },
         11: { 
             type: 'button',
-            x: 558, y: 692, w: 57, h: 138, z: 2,
+            x: 558, y: 625, w: 57, h: 170, z: 2,
             func: () => {playpiano("G#");}
           },
         12: { 
             type: 'button',
-            x: 655, y: 692, w: 57, h: 138, z: 2,
+            x: 655, y: 625, w: 57, h: 170, z: 2,
             func: () => {playpiano("A#");}
           },
         13: { 
             type: 'button',
-            x: 93, y: 987, w: 116, h: 98, z: 2,
+            x: 90, y: 994, w: 113, h: 113, z: 2,
             func: () => {
               setTimeout(() => playpiano("A"), 500);
               setTimeout(() => playpiano("G"), 1000);
@@ -1192,14 +1409,14 @@ function App() {
           },
         14: {
           type: 'textbox',
-          x: 99, y: 1195, w: 732, h: 94, z: 3,
+          x: 62, y: 1217, w: 766, h: 119, z: 3,
           placeholder: '請在此輸入答案…',
           value: textboxValue,
           onChange: (e) => setTextboxValue(e.target.value),
         },
         15: { 
           type: 'button',
-          x: 184, y: 1345, w: 531, h: 132, z: 1,
+          x: 278, y: 1383, w: 534, h: 160, z: 1,
           func: () => {
             if (textboxValue.toUpperCase()=="AGE") {
               taskcompleteRef.current[8]=true;
@@ -1210,9 +1427,34 @@ function App() {
             }
           },
         },
+        16: { 
+          type: 'button',
+          x: 775, y: 61, w: 94, h: 88, z: 1,
+          func: () => {
+            openOverlay(4);
+          },
+        },
+        17: { 
+          type: 'button',
+          x: 77, y: 1389, w: 154, h: 139, z: 1,
+          func: () => {
+            openOverlay(5);
+          },
+        },
       },
     }
   };
+
+  const puzzleElements = Object.entries(taskcompleteRef.current).reduce((acc, [x, isComplete]) => {
+    if (isComplete) {
+      acc[3 + Number(x)] = {
+        type: 'div',
+        x: 0, y: 0, w: 900, h: 1600, z: 2,
+        image: `/puz${x}.png`,
+      };
+    }
+    return acc;
+  }, {});
 
   const OVERLAY = {
     1: {
@@ -1220,7 +1462,7 @@ function App() {
       divs: {
         1: {
           type: 'button',
-          x: 225, y: 950, w: 452, h: 110, z: 2,
+          x: 203, y: 950, w: 493, h: 125, z: 2,
           label: '',
           func: () => closeOverlay(),
         },
@@ -1231,14 +1473,65 @@ function App() {
       divs: {
         1: {
           type: 'button',
-          x: 753, y: 89, w: 85, h: 79, z: 2,
+          x: 753, y: 89, w: 85, h: 79, z: 3,
+          label: '',
+          func: () => closeOverlay(),
+        },
+        2: { 
+          type: 'text',
+          text: Object.values(taskcompleteRef.current).filter(Boolean).length.toString(),
+          color: "#f57f17",
+          fontSize: 20,
+          x: 464, y: 1374, w: 50, h: 69, z: 2,
+        },
+        ...puzzleElements
+      },
+    },
+    3: {
+      wallpaper: '/cser.png',
+      divs: {
+        1: {
+          type: 'button',
+          x: 693, y: 457, w: 79, h: 78, z: 2,
           label: '',
           func: () => closeOverlay(),
         },
       },
     },
-    3: {
-      wallpaper: '/cser.png',
+    4: {
+      wallpaper: '/pop.png',
+      divs: {
+        1: {
+          type: 'button',
+          x: 690, y: 375, w: 160, h: 150, z: 2,
+          label: '',
+          func: () => closeOverlay(),
+        },
+        2: {
+          type: 'button',
+          x: 87, y: 563, w: 741, h: 164, z: 2,
+          label: '',
+          func: () => openOverlay(3),
+        },
+        3: {
+          type: 'button',
+          x: 87, y: 727, w: 741, h: 191, z: 2,
+          label: '',
+          func: () => openOverlay(2),
+        },
+        4: {
+          type: 'button',
+          x: 87, y: 918, w: 741, h: 179, z: 2,
+          label: '',
+          func: () => {
+            closeOverlay();
+            goToScene(5, 'fade', 800);
+          },
+        },
+      },
+    },
+    5: {
+      wallpaper: '/hint.png',
       divs: {
         1: {
           type: 'button',
@@ -1321,7 +1614,7 @@ function App() {
                   width: item.w ? `${(item.w / BASE_WIDTH) * 100}%` : 'auto',
                   height: item.h ? `${(item.h / BASE_HEIGHT) * 100}%` : 'auto',
                   zIndex: item.z || 1,
-                  fontFamily: item.font || 'inherit',
+                  fontFamily: 'MyCustomFont',
                   fontSize: item.fontSize || '16px',
                   color: hex,
                 }}
@@ -1438,6 +1731,29 @@ function App() {
                   >
                     {item.label}
                   </button>
+                );
+              }
+
+              if (item.type === 'text') {
+                const hex = item.color ? (item.color.startsWith('#') ? item.color : `#${item.color}`) : '#ffffff';
+                return (
+                  <div
+                    key={key}
+                    className="action-text"
+                    style={{
+                      position: 'absolute',
+                      left: `${(item.x / BASE_WIDTH) * 100}%`,
+                      top: `${(item.y / BASE_HEIGHT) * 100}%`,
+                      width: item.w ? `${(item.w / BASE_WIDTH) * 100}%` : 'auto',
+                      height: item.h ? `${(item.h / BASE_HEIGHT) * 100}%` : 'auto',
+                      zIndex: item.z || 1,
+                      fontFamily: 'MyCustomFont',
+                      fontSize: item.fontSize || '16px',
+                      color: hex,
+                    }}
+                  >
+                    {item.text}
+                  </div>
                 );
               }
 
