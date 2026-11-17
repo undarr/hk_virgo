@@ -17,23 +17,50 @@ const NOTE_OFFSETS = {
 
 // Orange boundary coordinates: [lon, lat] -> converted to [lat, lon]
 const ORANGE_BOUNDARY = [
-  [114.163618683815, 22.326343262919895],
-  [114.16492223739625, 22.32529621890989],
-  [114.16628479957582, 22.318671374457004],
-  [114.16411757469179, 22.31856219835636],
-  [114.16304469108583, 22.318194969027452],
-  [114.16083991527557, 22.317430731921014],
-  [114.15968656539918, 22.319668843058455],
-  [114.15968656539918, 22.322388273480033],
-  [114.15938079357149, 22.323122709103764],
-  [114.15893018245698, 22.323653683802593],
-  [114.15796458721162, 22.324398037455417],
-  [114.15852248668672, 22.324869459381738],
-  [114.15910720825197, 22.32502329145514],
-  [114.16151583194733, 22.3250679523479],
-  [114.16181087493898, 22.325256520404206],
-  [114.16183769702913, 22.32617950774],
-  [114.16202008724214, 22.326298602435354],
+  [114.16209536142506, 22.326219373571995],
+  [114.16340197828417, 22.326226871915402],
+  [114.16471383698824, 22.3252124341665],
+  [114.16504049448997, 22.32351640791365],
+  [114.16598565758046, 22.318716000269962],
+  [114.16378525104024, 22.318606886173264],
+  [114.1630875611616, 22.31835889927258],
+  [114.16265821354402, 22.318239865403747],
+  [114.1622718006882, 22.318061314410162],
+  [114.16156337711915, 22.317803407016182],
+  [114.16111256212065, 22.31759509685007],
+  [114.16081201878832, 22.317505820969423],
+  [114.16059734497951, 22.31738678637308],
+  [114.16023239950455, 22.318239865403747],
+  [114.15967424760167, 22.319380602471433],
+  [114.15928783474581, 22.319975765935965],
+  [114.15878335129516, 22.320640362138537],
+  [114.15839693843928, 22.321265278068772],
+  [114.15863307962897, 22.321761241101033],
+  [114.15884775343778, 22.3221282526101],
+  [114.15901949248484, 22.322495263153932],
+  [114.15916976415099, 22.322822596067866],
+  [114.15916976415099, 22.32335823008894],
+  [114.15908389462744, 22.323606208106106],
+  [114.15877261760471, 22.323824428396687],
+  [114.1585042753437, 22.324072405585355],
+  [114.15823593308272, 22.324241029821938],
+  [114.15802125927392, 22.32437989668728],
+  [114.15788172129818, 22.324439411015835],
+  [114.15808566141654, 22.324717144213448],
+  [114.1583754710584, 22.32491552473041],
+  [114.15869748177163, 22.325064309933055],
+  [114.15910536200832, 22.325113904965335],
+  [114.15962057914949, 22.3251337429733],
+  [114.16031826902808, 22.325183337980913],
+  [114.16071541557436, 22.325183337980913],
+  [114.1609944915258, 22.325193256980317],
+  [114.16134870331034, 22.32517341898081],
+  [114.16161704557133, 22.325213094977023],
+  [114.16176731723749, 22.325252770961953],
+  [114.1619819910463, 22.325252770961953],
+  [114.1620141921176, 22.32597685570512],
+  [114.16197125735584, 22.3260958829745],
+  [114.16209536142506, 22.326219373571995]
 ].map(([lon, lat]) => [lat, lon]);
 
 // 8 Tasks Definition
@@ -44,13 +71,13 @@ const INITIAL_TASKS = {
     shape: "polygon",
     scene: 10,
     vertices: [
-      [114.15995478630066, 22.324063078803032],
-      [114.15995478630066, 22.323202107318046],
-      [114.16026324033739, 22.323197144930976],
-      [114.16026324033739, 22.323249249986414],
-      [114.1609311103821, 22.32325173117903],
-      [114.160915017128, 22.32407796587133],
-      [114.15995478630066, 22.324063078803032]
+      [114.15996034807675, 22.324090568926795],
+      [114.1609371326603, 22.324090568926795],
+      [114.16095055003095, 22.32323256609015],
+      [114.1602984658172, 22.32321272781189],
+      [114.16029309886896, 22.32317801081812],
+      [114.1599737654474, 22.323173051246865],
+      [114.15996034807675, 22.324090568926795]
     ]
   },
   2: {
@@ -59,11 +86,11 @@ const INITIAL_TASKS = {
     shape: "polygon",
     scene: 20,
     vertices: [
-      [114.16307151317598, 22.326263866493047],
-      [114.16308224201204, 22.325608844247526],
-      [114.16324853897096, 22.325559221224836],
-      [114.16332900524141, 22.32624401737928],
-      [114.16307151317598, 22.326263866493047]
+      [114.16311968271641, 22.326227850968706],
+      [114.16318945784441, 22.326227850968706],
+      [114.16320555979702, 22.3256525521035],
+      [114.16315725393919, 22.32565751158661],
+      [114.16311968271641, 22.326227850968706]
     ]
   },
   3: {
@@ -72,24 +99,24 @@ const INITIAL_TASKS = {
     shape: "polygon",
     scene: 30,
     vertices: [
-      [114.16086405515672, 22.32008321224729],
-      [114.16086405515672, 22.319899599704634],
-      [114.16167676448823, 22.319889674695446],
-      [114.16167676448823, 22.32008321224729],
-      [114.16086405515672, 22.32008321224729]
+      [114.16087514630489, 22.320071683417922],
+      [114.161653395424, 22.320076643099384],
+      [114.16165607904165, 22.319945211480995],
+      [114.16087514630489, 22.319935292108536],
+      [114.16087514630489, 22.320071683417922]
     ]
   },
   4: {
     id:4,
-    label: "好世界洋樓",
+    label: "雷生春",
     shape: "polygon",
     scene: 40,
     vertices: [
-      [114.16477471590044, 22.325162236407923],
-      [114.16488468647005, 22.324608936935153],
-      [114.16468352079393, 22.3245692382339],
-      [114.1645708680153, 22.325125019023414],
-      [114.16477471590044, 22.325162236407923]
+      [114.16463017101881, 22.325197235980415],
+      [114.16519104710811, 22.324770718381384],
+      [114.16509712049027, 22.32463433166472],
+      [114.1647428829602, 22.32457977694072],
+      [114.16463017101881, 22.325197235980415]
     ]
   },
   5: {
@@ -98,11 +125,13 @@ const INITIAL_TASKS = {
     shape: "polygon",
     scene: 50,
     vertices: [
-      [114.16086405515672, 22.321656315211907],
-      [114.16134148836137, 22.32166624009544],
-      [114.16134685277942, 22.321400749217414],
-      [114.16086673736574, 22.3213957867663],
-      [114.16086405515672, 22.321656315211907]
+      [114.160005792551, 22.321989054746762],
+      [114.15995480654252, 22.321969216291684],
+      [114.15996554043905, 22.321393899868113],
+      [114.16001920992167, 22.321361662239713],
+      [114.16139314867652, 22.321374061328434],
+      [114.16138778172824, 22.321989054746762],
+      [114.160005792551, 22.321989054746762]
     ]
   },
   6: {
@@ -111,11 +140,11 @@ const INITIAL_TASKS = {
     shape: "polygon",
     scene: 60,
     vertices: [
-      [114.16028201580049, 22.32413999530546],
-      [114.16114300489427, 22.324154882365534],
-      [114.16114300489427, 22.324298790531138],
-      [114.16027933359148, 22.324276459963446],
-      [114.16028201580049, 22.32413999530546]
+      [114.16013177883337, 22.324254484291345],
+      [114.16022570042793, 22.324162732902625],
+      [114.16149766716583, 22.324152813829954],
+      [114.16148424979517, 22.324261923590473],
+      [114.16013177883337, 22.324254484291345]
     ]
   },
   7: {
@@ -124,11 +153,13 @@ const INITIAL_TASKS = {
     shape: "polygon",
     scene: 70,
     vertices: [
-      [114.16178405284883, 22.320403292994047],
-      [114.16178137063982, 22.32029659949336],
-      [114.16196644306184, 22.320289155757713],
-      [114.16196912527086, 22.32040825548047],
-      [114.16178405284883, 22.320403292994047]
+      [114.16179292306619, 22.320339505964856],
+      [114.16179292306619, 22.32029982858294],
+      [114.1619163628762, 22.320304788256287],
+      [114.1619163628762, 22.320428780032955],
+      [114.16186806034185, 22.320423820363985],
+      [114.1618626933936, 22.320364304322837],
+      [114.16179292306619, 22.320339505964856]
     ]
   },
   8: {
@@ -137,11 +168,11 @@ const INITIAL_TASKS = {
     shape: "polygon",
     scene: 80,
     vertices: [
-      [114.16486591100696, 22.321492554531446],
-      [114.16469961404803, 22.32129901893404],
-      [114.16531383991243, 22.320800291349947],
-      [114.16549623012544, 22.321033527357404],
-      [114.16486591100696, 22.321492554531446]
+      [114.16439173697295, 22.321848576636373],
+      [114.16548130243321, 22.320988080190077],
+      [114.1653310175421, 22.320782254605323],
+      [114.16422803378802, 22.321662590822246],
+      [114.16439173697295, 22.321848576636373]
     ]
   }
 };
@@ -441,6 +472,195 @@ function CheckboxesGroup({ config }) {
   );
 }
 
+function WheelColumn({ items, value, onChange, loop = true }) {
+  const ITEM_HEIGHT = 44; 
+  const VISIBLE_ITEMS = 5;
+  const containerRef = useRef(null);
+  const scrollTimeout = useRef(null);
+
+  const repeatedItems = loop ? [...items, ...items, ...items] : items;
+  const offset = loop ? items.length : 0;
+
+  // Set initial position
+  useEffect(() => {
+    if (containerRef.current) {
+      const targetIndex = items.indexOf(value) + offset;
+      containerRef.current.scrollTop = targetIndex * ITEM_HEIGHT;
+    }
+  }, []);
+
+  const handleScroll = (e) => {
+    const el = e.target;
+    const scrollTop = el.scrollTop;
+
+    // Handle seamless infinite looping without jitter on mobile
+    if (loop) {
+      if (scrollTop <= ITEM_HEIGHT * 0.5) {
+        el.scrollTop += items.length * ITEM_HEIGHT;
+        return;
+      }
+      if (scrollTop >= (repeatedItems.length - VISIBLE_ITEMS + 0.5) * ITEM_HEIGHT) {
+        el.scrollTop -= items.length * ITEM_HEIGHT;
+        return;
+      }
+    }
+
+    // Debounce state emission so mobile momentum doesn't spam re-renders
+    clearTimeout(scrollTimeout.current);
+    scrollTimeout.current = setTimeout(() => {
+      const index = Math.round(el.scrollTop / ITEM_HEIGHT);
+      const actualItem = repeatedItems[index % repeatedItems.length];
+      if (actualItem !== undefined && actualItem !== value) {
+        onChange(actualItem);
+      }
+    }, 60);
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      onScroll={handleScroll}
+      style={{
+        height: `${ITEM_HEIGHT * VISIBLE_ITEMS}px`,
+        overflowY: 'auto',
+        
+        /* --- Mobile Touch & Scroll Fixes --- */
+        WebkitOverflowScrolling: 'touch',  // Native iOS momentum flick
+        touchAction: 'pan-y',               // Disables horizontal swipes/navigation
+        overscrollBehaviorY: 'contain',     // Prevents whole page from bouncing
+        scrollSnapType: 'y mandatory',
+        /* ----------------------------------- */
+
+        scrollbarWidth: 'none',
+        msOverflowStyle: 'none',
+        width: '50%',
+        position: 'relative',
+        zIndex: 3, // Above gradient vignette so touch touches the scroll area
+      }}
+    >
+      <style>{`div::-webkit-scrollbar { display: none; }`}</style>
+
+      {/* Top buffer space */}
+      <div style={{ height: `${ITEM_HEIGHT * Math.floor(VISIBLE_ITEMS / 2)}px` }} />
+
+      {repeatedItems.map((item, idx) => {
+        const isSelected = item === value;
+        return (
+          <div
+            key={`wheel-item-${idx}-${item}`}
+            style={{
+              height: `${ITEM_HEIGHT}px`,
+              lineHeight: `${ITEM_HEIGHT}px`,
+              textAlign: 'center',
+              scrollSnapAlign: 'center',
+              scrollSnapStop: 'normal',
+              fontSize: isSelected ? '28px' : '20px',
+              fontWeight: isSelected ? '600' : '400',
+              color: isSelected ? '#ffffff' : '#666666',
+              transform: isSelected ? 'scale(1.1)' : 'scale(0.9)',
+              transition: 'transform 0.15s ease, color 0.15s ease',
+              userSelect: 'none',
+              WebkitUserSelect: 'none', // Prevents iOS text selection highlight on tap
+            }}
+            onClick={() => {
+              if (containerRef.current) {
+                containerRef.current.scrollTo({
+                  top: idx * ITEM_HEIGHT,
+                  behavior: 'smooth',
+                });
+              }
+            }}
+          >
+            {typeof item === 'number' ? String(item).padStart(2, '0') : item}
+          </div>
+        );
+      })}
+
+      {/* Bottom buffer space */}
+      <div style={{ height: `${ITEM_HEIGHT * Math.floor(VISIBLE_ITEMS / 2)}px` }} />
+    </div>
+  );
+}
+
+function WheelTimePicker({ config, onChange }) {
+  const ITEM_HEIGHT = 44; // Height of each number row in pixels
+  const VISIBLE_ITEMS = 5; // How many items visible at once (must be odd)
+  const [hour, setHour] = useState(config.defaultHour || 12);
+  const [minute, setMinute] = useState(config.defaultMinute || 0);
+
+  const hours = Array.from({ length: 12 }, (_, i) => i + 1); // 1 to 12
+  const minutes = Array.from({ length: 60 }, (_, i) => i);   // 0 to 59
+
+  const handleHourChange = (newHour) => {
+    setHour(newHour);
+    if (onChange) onChange({ hour: newHour, minute });
+  };
+
+  const handleMinuteChange = (newMinute) => {
+    setMinute(newMinute);
+    if (onChange) onChange({ hour, minute: newMinute });
+  };
+
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        left: `${(config.x / BASE_WIDTH) * 100}%`,
+        top: `${(config.y / BASE_HEIGHT) * 100}%`,
+        width: `${(config.w / BASE_WIDTH) * 100}%`,
+        height: `${ITEM_HEIGHT * VISIBLE_ITEMS}px`,
+        zIndex: config.z || 2,
+        backgroundColor: '#1c1c1e',
+        borderRadius: '16px',
+        overflow: 'hidden',
+        display: 'flex',
+        boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+      }}
+    >
+      {/* Center Highlight Bar */}
+      <div
+        style={{
+          position: 'absolute',
+          top: `${ITEM_HEIGHT * Math.floor(VISIBLE_ITEMS / 2)}px`,
+          left: '4%',
+          width: '92%',
+          height: `${ITEM_HEIGHT}px`,
+          backgroundColor: 'rgba(255, 255, 255, 0.08)',
+          borderRadius: '8px',
+          pointerEvents: 'none',
+          zIndex: 1,
+        }}
+      />
+
+      {/* Top & Bottom Gradient Vignette (Gives the cylinder 3D fade) */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background:
+            'linear-gradient(to bottom, #1c1c1e 0%, rgba(28,28,30,0) 25%, rgba(28,28,30,0) 75%, #1c1c1e 100%)',
+          pointerEvents: 'none',
+          zIndex: 2,
+        }}
+      />
+
+      {/* Hour Column */}
+      <WheelColumn
+        items={hours}
+        value={hour}
+        onChange={handleHourChange}
+      />
+
+      {/* Minute Column */}
+      <WheelColumn
+        items={minutes}
+        value={minute}
+        onChange={handleMinuteChange}
+      />
+    </div>
+  );
+}
+
 /**
  * Infinite Generator & Slot Drag-and-Drop Component
  * (Plus sign badge removed)
@@ -562,6 +782,7 @@ function GeneratorsGroup({ config, stageRef }) {
         return (
           <div
             key={`slot-item-${slotId}`}
+            data-slot-id={slotId}
             className="generator-item slotted-item"
             onPointerDown={(e) => startDrag('slot', slotId, item, e)}
             style={{
@@ -623,6 +844,7 @@ function App() {
   const [userCoords, setUserCoords] = useState(null);
 
   const [textboxValue, setTextboxValue] = useState('');
+  const [timeText, setTimeText] = useState('12:00');
   const [selectedModes, setSelectedModes] = useState([]);
 
   const stageRef = useRef(null);
@@ -938,8 +1160,9 @@ function App() {
         ...(activeTask && !taskcompleteRef.current[activeTask.id] && {
           11: { 
             type: 'button',
+            image: '/map_bottom.png',
             label: `Enter ${activeTask.label}`,
-            x: 175, y: 1251, w: 556, h: 151, z: 1,
+            x: 191, y: 1248, w: 524, h: 170, z: 1,
             func: () => {
               setTextboxValue("");
               goToScene(activeTask.scene, 'fade', 800);
@@ -970,21 +1193,21 @@ function App() {
           type: 'generators',
           w: 80, h: 80, z: 3,
           slots: {
-            1: { x: 70, y: 515 },
-            2: { x: 170, y: 515 },
-            3: { x: 655, y: 515 },
-            4: { x: 760, y: 515 },
-            5: { x: 65, y: 905 },
-            6: { x: 165, y: 905 },
-            7: { x: 650, y: 905 },
-            8: { x: 755, y: 905 },
-            9: { x: 305, y: 770 },
-            10: { x: 410, y: 770 },
-            11: { x: 515, y: 770 },
+            1: { x: 65, y: 431 },
+            2: { x: 170, y: 431 },
+            3: { x: 655, y: 431 },
+            4: { x: 760, y: 431 },
+            5: { x: 60, y: 935 },
+            6: { x: 165, y: 935 },
+            7: { x: 650, y: 935 },
+            8: { x: 755, y: 935 },
+            9: { x: 305, y: 658 },
+            10: { x: 410, y: 658 },
+            11: { x: 515, y: 658 },
           },
           gen: {
-            1: { image: '/1w1.png', x: 40, y: 1150 },
-            2: { image: '/1w2.png', x: 125, y: 1150 },
+            1: { image: '/1w1.png', x: 30, y: 1150 },
+            2: { image: '/1w2.png', x: 115, y: 1150 },
             3: { image: '/1w3.png', x: 200, y: 1150 },
             4: { image: '/1w4.png', x: 285, y: 1150 },
             5: { image: '/1w5.png', x: 370, y: 1150 },
@@ -993,8 +1216,8 @@ function App() {
             8: { image: '/1w8.png', x: 625, y: 1150 },
             9: { image: '/1w9.png', x: 710, y: 1150 },
             10: { image: '/1w10.png', x: 795, y: 1150 },
-            11: { image: '/1w11.png', x: 40, y: 1250 },
-            12: { image: '/1w12.png', x: 125, y: 1250 },
+            11: { image: '/1w11.png', x: 30, y: 1250 },
+            12: { image: '/1w12.png', x: 115, y: 1250 },
             13: { image: '/1w13.png', x: 200, y: 1250 },
             14: { image: '/1w14.png', x: 285, y: 1250 },
             15: { image: '/1w15.png', x: 370, y: 1250 },
@@ -1009,7 +1232,18 @@ function App() {
           type: 'button',
           x: 278, y: 1383, w: 534, h: 160, z: 1,
           func: () => {
-            if (true) {
+            const cor = document.querySelector('[data-slot-id="1"]')?.style.backgroundImage.includes('/1w10.png') &&
+              document.querySelector('[data-slot-id="2"]')?.style.backgroundImage.includes('/1w2.png') &&
+              document.querySelector('[data-slot-id="3"]')?.style.backgroundImage.includes('/1w10.png') &&
+              document.querySelector('[data-slot-id="4"]')?.style.backgroundImage.includes('/1w11.png') &&
+              document.querySelector('[data-slot-id="9"]')?.style.backgroundImage.includes('/1w10.png') &&
+              document.querySelector('[data-slot-id="10"]')?.style.backgroundImage.includes('/1w13.png') &&
+              document.querySelector('[data-slot-id="11"]')?.style.backgroundImage.includes('/1w16.png') &&
+              document.querySelector('[data-slot-id="5"]')?.style.backgroundImage.includes('/1w17.png') &&
+              document.querySelector('[data-slot-id="6"]')?.style.backgroundImage.includes('/1w20.png') &&
+              document.querySelector('[data-slot-id="7"]')?.style.backgroundImage.includes('/1w4.png') &&
+              document.querySelector('[data-slot-id="8"]')?.style.backgroundImage.includes('/1w8.png');
+            if (cor) {
               taskcompleteRef.current[1]=true;
               goToScene(9, 'crossfade', 800);
             }
@@ -1039,8 +1273,8 @@ function App() {
       divs: {
         1: { 
             type: 'button',
-            label: '詩歌舞街page',
-            x: 187, y: 1176, w: 519, h: 151, z: 1,
+            label: '',
+            x: 200, y: 1198, w: 499, h: 151, z: 1,
             func: () => goToScene(21, 'fade', 800),
           },
       },
@@ -1138,7 +1372,7 @@ function App() {
       divs: {
         1: {
           type: 'textbox',
-          x: 65, y: 1085, w: 754, h: 116, z: 3,
+          x: 65, y: 1220, w: 762, h: 116, z: 3,
           placeholder: '請在此輸入答案…',
           value: textboxValue,
           onChange: (e) => setTextboxValue(e.target.value),
@@ -1207,7 +1441,7 @@ function App() {
         },
         3: { 
           type: 'button',
-          x: 775, y: 61, w: 94, h: 88, z: 1,
+          x: 775, y: 61, w: 94, h: 88, z: 1, z: 1,
           func: () => {
             openOverlay(4);
           },
@@ -1217,6 +1451,27 @@ function App() {
           x: 77, y: 1389, w: 154, h: 139, z: 1,
           func: () => {
             openOverlay(5);
+          },
+        },
+        5: { 
+          type: 'button',
+          x: 112, y: 736, w: 188, h: 308, z: 1,
+          func: () => {
+            openOverlay(6);
+          },
+        },
+        6: { 
+          type: 'button',
+          x: 354, y: 739, w: 188, h: 292, z: 1,
+          func: () => {
+            openOverlay(7);
+          },
+        },
+        7: { 
+          type: 'button',
+          x: 593, y: 736, w: 191, h: 292, z: 1,
+          func: () => {
+            openOverlay(8);
           },
         },
       },
@@ -1271,35 +1526,33 @@ function App() {
       wallpaper: '/70_2.png',
       divs: {
         1: {
-          type: 'textbox',
-          x: 209, y: 673, w: 607, h: 91, z: 3,
-          placeholder: '請在此輸入時間… (e.g. 09:15)',
-          value: textboxValue,
-          onChange: (e) => setTextboxValue(e.target.value),
+          type: 'button',
+          x: 209, y: 598, w: 478, h: 113, z: 3,
+          func: () => {openOverlay(9);},
         },
         2: {
           type: 'checkboxes',
           onChange: (keys) => {setSelectedModes(keys);},
           buttons: {
-            1: { x: 209, y: 799, w: 164, h: 116, z: 2},
-            2: { x: 382, y: 802, w: 154, h: 113, z: 2},
-            3: { x: 549, y: 799, w: 157, h: 113, z: 2},
-            4: { x: 715, y: 802, w: 157, h: 113, z: 2},
-            5: { x: 291, y: 969, w: 132, h: 106, z: 2},
-            6: { x: 436, y: 969, w: 135, h: 109, z: 2},
-            7: { x: 577, y: 969, w: 141, h: 109, z: 2},
-            8: { x: 728, y: 965, w: 135, h: 113, z: 2},
-            9: { x: 288, y: 1132, w: 138, h: 104, z: 2},
-            10: { x: 436, y: 1135, w: 135, h: 101, z: 2},
-            11: { x: 580, y: 1135, w: 138, h: 97, z: 2},
-            12: { x: 728, y: 1132, w: 135, h: 104, z: 2},
+            1: { x: 209, y: 755, w: 161, h: 145, z: 2},
+            2: { x: 376, y: 755, w: 161, h: 145, z: 2},
+            3: { x: 545, y: 755, w: 161, h: 145, z: 2},
+            4: { x: 712, y: 755, w: 161, h: 145, z: 2},
+            5: { x: 288, y: 965, w: 138, h: 135, z: 2},
+            6: { x: 436, y: 965, w: 138, h: 135, z: 2},
+            7: { x: 577, y: 965, w: 138, h: 135, z: 2},
+            8: { x: 728, y: 965, w: 138, h: 135, z: 2},
+            9: { x: 288, y: 1170, w: 138, h: 128, z: 2},
+            10: { x: 432, y: 1170, w: 138, h: 128, z: 2},
+            11: { x: 580, y: 1170, w: 138, h: 128, z: 2},
+            12: { x: 722, y: 1170, w: 138, h: 128, z: 2},
           },
         },
         3: {
           type: "button",
           x: 278, y: 1383, w: 534, h: 160,
           func: () => {
-            if (["2:00","02:00","14:00"].includes(textboxValue) && JSON.stringify(selectedModes.sort())==JSON.stringify(['1','10','3','5','6'])) {
+            if (timeText=="02:00" && JSON.stringify(selectedModes.sort())==JSON.stringify(['1','10','3','5','6'])) {
               taskcompleteRef.current[7]=true;
               goToScene(9, 'crossfade', 800);
             }
@@ -1322,6 +1575,13 @@ function App() {
             openOverlay(5);
           },
         },
+        6: { 
+          type: 'text',
+          text: timeText,
+          color: "000000",
+          fontSize: 20,
+          x: 329, y: 607, w: 301, h: 88, z: 1,
+        },
       },
     },
     80: {
@@ -1330,7 +1590,7 @@ function App() {
         1: { 
             type: 'button',
             label: '形品星寓',
-            x: 187, y: 1176, w: 519, h: 151, z: 1,
+            x: 200, y: 1204, w: 502, h: 148, z: 1,
             func: () => goToScene(81, 'fade', 800),
           },
       },
@@ -1473,7 +1733,7 @@ function App() {
       divs: {
         1: {
           type: 'button',
-          x: 753, y: 89, w: 85, h: 79, z: 3,
+          x: 762, y: 117, w: 85, h: 82, z: 3,
           label: '',
           func: () => closeOverlay(),
         },
@@ -1535,12 +1795,94 @@ function App() {
       divs: {
         1: {
           type: 'button',
-          x: 693, y: 457, w: 79, h: 78, z: 2,
+          x: 709, y: 388, w: 69, h: 75, z: 2,
           label: '',
           func: () => closeOverlay(),
         },
       },
     },
+    6: {
+      wallpaper: '/40_mag1.png',
+      divs: {
+        1: {
+          type: 'button',
+          x: 756, y: 146, w: 91, h: 91, z: 2,
+          label: '',
+          func: () => closeOverlay(),
+        },
+        2: {
+          type: 'button',
+          x: 291, y: 1345, w: 110, h: 110, z: 2,
+          label: '',
+          func: () => openOverlay(8),
+        },
+        3: {
+          type: 'button',
+          x: 495, y: 1345, w: 110, h: 110, z: 2,
+          label: '',
+          func: () => openOverlay(7),
+        },
+      },
+    },
+    7: {
+      wallpaper: '/40_mag2.png',
+      divs: {
+        1: {
+          type: 'button',
+          x: 756, y: 146, w: 91, h: 91, z: 2,
+          label: '',
+          func: () => closeOverlay(),
+        },
+        2: {
+          type: 'button',
+          x: 291, y: 1345, w: 110, h: 110, z: 2,
+          label: '',
+          func: () => openOverlay(6),
+        },
+        3: {
+          type: 'button',
+          x: 495, y: 1345, w: 110, h: 110, z: 2,
+          label: '',
+          func: () => openOverlay(8),
+        },
+      },
+    },
+    8: {
+      wallpaper: '/40_mag3.png',
+      divs: {
+        1: {
+          type: 'button',
+          x: 756, y: 146, w: 91, h: 91, z: 2,
+          label: '',
+          func: () => closeOverlay(),
+        },
+        2: {
+          type: 'button',
+          x: 291, y: 1345, w: 110, h: 110, z: 2,
+          label: '',
+          func: () => openOverlay(7),
+        },
+        3: {
+          type: 'button',
+          x: 495, y: 1345, w: 110, h: 110, z: 2,
+          label: '',
+          func: () => openOverlay(6),
+        },
+      },
+    },
+    9: {
+      divs: {
+        1: {
+          type: 'button',
+          x: 0, y: 0, w: 900, h: 1600, z: 1,
+          label: '',
+          func: () => closeOverlay(),
+        },
+        2: {
+          type: 'clock'
+        },
+      },
+    }
   }
 
   // Prevent mobile gesture scrolling, allow interactions on all interactive widgets
@@ -1732,6 +2074,22 @@ function App() {
                     {item.label}
                   </button>
                 );
+              }
+
+              if (item.type === 'clock') {
+                return(<WheelTimePicker
+                  config={{
+                    x: 200,
+                    y: 380,
+                    w: 500,
+                    z: 5,
+                    defaultHour: timeText.split(':').map(Number)[0],
+                    defaultMinute: timeText.split(':').map(Number)[1],
+                  }}
+                  onChange={({ hour, minute }) => {
+                    setTimeText(`${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`)
+                  }}
+                />)
               }
 
               if (item.type === 'text') {
