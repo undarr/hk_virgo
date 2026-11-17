@@ -14,8 +14,8 @@
 
 @font-face {
   font-family: 'MyCustomFont'; /* Give it any name you want */
-  src: url('./assets/CustomFont.ttf') format('truetype');
-  font-weight: normal;
+  src: url('./assets/f.ttf') format('truetype');
+  font-weight: bold;
   font-style: normal;
 }
 
