@@ -913,7 +913,7 @@ function App() {
       }
     }
 
-    return { text: "💡前往任務區域", activeTask: null };
+    return { text: "💡前往謎題區域", activeTask: null };
   };
 
   const { text: statusText, activeTask } = getUserLocationStatus();
@@ -1085,6 +1085,11 @@ function App() {
           x: 194, y: 1254, w: 515, h: 161, z: 1,
           func: () => enablelocation(),
         },
+        2: {
+          type: 'button',
+          x: 21, y: 36, w: 113, h: 113,
+          func: () => goToScene(6, 'fade', 1000),
+        }
       },
     },
     4: {
@@ -1161,7 +1166,7 @@ function App() {
           11: { 
             type: 'button',
             image: '/map_bottom.png',
-            label: `Enter ${activeTask.label}`,
+            label: `進入${activeTask.label}`,
             x: 191, y: 1248, w: 524, h: 170, z: 1,
             func: () => {
               setTextboxValue("");
@@ -1740,9 +1745,9 @@ function App() {
         2: { 
           type: 'text',
           text: Object.values(taskcompleteRef.current).filter(Boolean).length.toString(),
-          color: "#f57f17",
-          fontSize: 20,
-          x: 464, y: 1374, w: 50, h: 69, z: 2,
+          color: "#f2ce6d",
+          fontSize: 30,
+          x: 469, y: 1365, w: 50, h: 69, z: 2,
         },
         ...puzzleElements
       },
